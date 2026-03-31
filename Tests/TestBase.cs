@@ -44,18 +44,21 @@ namespace ParabankParasoftAutomation.Tests
 
             var options = new ChromeOptions();
 
-            // By default run with visible browser locally. To force headless (CI), set HEADLESS=true
-            var headless = Environment.GetEnvironmentVariable("HEADLESS");
-            if (!string.IsNullOrEmpty(headless) && headless.Equals("true", StringComparison.OrdinalIgnoreCase))
+            // Headless mode control
+            // Headless is explicitly disabled here by default. To enable headless set this flag to true.
+            var headlessEnabled = false; // <-- headless mode set to false
+
+            if (headlessEnabled)
             {
                 options.AddArgument("--headless=new");
                 options.AddArgument("--no-sandbox");
                 options.AddArgument("--disable-dev-shm-usage");
+                options.AddArgument("--window-size=1280,800");
             }
 
             Driver = new ChromeDriver(options);
             Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-            Driver.Manage().Window.Size = new System.Drawing.Size(1280, 800);
+            Driver.Manage().Window.Maximize();
 
             // Create an Extent test node for this test
             TestReport = Reports.ReportManager.CreateTest(TestContext.CurrentContext.Test.Name);
