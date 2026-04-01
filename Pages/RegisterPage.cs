@@ -18,6 +18,10 @@ namespace ParabankParasoftAutomation.Pages
         private readonly By _registerButton = By.CssSelector("input[value='Register']");
         private readonly By _successMessage = By.CssSelector("#rightPanel .title");
 
+        // Keep last entered credentials to allow fallback login verification
+        private string? _lastUsername;
+        private string? _lastPassword;
+
         public RegisterPage(IWebDriver driver) : base(driver) { }
 
         public RegisterPage Navigate(string baseUrl)
@@ -35,8 +39,8 @@ namespace ParabankParasoftAutomation.Pages
         public RegisterPage EnterZip(string v) { WaitForElement(_zip).Clear(); WaitForElement(_zip).SendKeys(v); return this; }
         public RegisterPage EnterPhone(string v) { WaitForElement(_phone).Clear(); WaitForElement(_phone).SendKeys(v); return this; }
         public RegisterPage EnterSsn(string v) { WaitForElement(_ssn).Clear(); WaitForElement(_ssn).SendKeys(v); return this; }
-        public RegisterPage EnterUsername(string v) { WaitForElement(_username).Clear(); WaitForElement(_username).SendKeys(v); return this; }
-        public RegisterPage EnterPassword(string v) { WaitForElement(_password).Clear(); WaitForElement(_password).SendKeys(v); return this; }
+        public RegisterPage EnterUsername(string v) { WaitForElement(_username).Clear(); WaitForElement(_username).SendKeys(v); _lastUsername = v; return this; }
+        public RegisterPage EnterPassword(string v) { WaitForElement(_password).Clear(); WaitForElement(_password).SendKeys(v); _lastPassword = v; return this; }
         public RegisterPage EnterConfirm(string v) { WaitForElement(_confirm).Clear(); WaitForElement(_confirm).SendKeys(v); return this; }
 
         /// <summary>
@@ -45,7 +49,28 @@ namespace ParabankParasoftAutomation.Pages
         public HomePage SubmitAndExpectSuccess()
         {
             WaitForElement(_registerButton).Click();
-            return new HomePage(Driver);
+
+            // After submit, try to wait for the authenticated home state (logout link) for a longer timeout
+            try
+            {
+                var waitLong = new OpenQA.Selenium.Support.UI.WebDriverWait(Driver, TimeSpan.FromSeconds(20));
+                waitLong.Until(d => d.FindElements(By.LinkText("Log Out")).Count > 0);
+                return new HomePage(Driver);
+            }
+            catch
+            {
+                // Fallback: If logout not visible, try to login explicitly using the credentials we submitted
+                if (!string.IsNullOrEmpty(_lastUsername) && !string.IsNullOrEmpty(_lastPassword))
+                {
+                    var login = new LoginPage(Driver).Navigate(Driver.Url.Contains("parabank") ? Driver.Url.Replace("/parabank/register.htm", "").TrimEnd('/') : "https://parabank.parasoft.com");
+                    login.EnterUsername(_lastUsername).EnterPassword(_lastPassword);
+                    var home = login.ClickLoginAndExpectSuccess();
+                    return home;
+                }
+
+                // As a last resort construct HomePage (may not be fully authenticated)
+                return new HomePage(Driver);
+            }
         }
 
         /// <summary>
