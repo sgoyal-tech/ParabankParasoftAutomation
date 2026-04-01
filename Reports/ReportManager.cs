@@ -9,10 +9,10 @@ namespace Reports
 
         public string Name { get; }
 
-        public ReportTest(string name)
+        public ReportTest(string name, string resultsDir)
         {
             Name = name;
-            var dir = Path.Combine("TestResults", "reports");
+            var dir = Path.Combine(resultsDir, "reports");
             Directory.CreateDirectory(dir);
             _file = Path.Combine(dir, SanitizeFileName(name) + ".log");
             File.AppendAllText(_file, $"=== START TEST: {name} - {DateTime.UtcNow:O}\n");
@@ -57,6 +57,6 @@ namespace Reports
 
     public static class ReportManager
     {
-        public static ReportTest CreateTest(string name) => new ReportTest(name);
+        public static ReportTest CreateTest(string name, string resultsDir) => new ReportTest(name, resultsDir);
     }
 }

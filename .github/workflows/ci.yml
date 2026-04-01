@@ -2,6 +2,7 @@ name: CI - Run UI Tests
 
 env:
   DOTNET_VERSION: '10.0.x'
+  TEST_RESULTS_DIR: 'D:\\ParaBank_ParaSoft_Automation\\ParabankParasoftAutomation\\TestResults'
 
 on:
   push:
@@ -31,15 +32,23 @@ jobs:
       run: dotnet restore
 
     - name: Ensure TestResults directory exists
-      run: mkdir -p TestResults
+      if: runner.os == 'Windows'
+      run: |
+        if (-not (Test-Path -Path "$env:TEST_RESULTS_DIR")) { New-Item -ItemType Directory -Path "$env:TEST_RESULTS_DIR" -Force | Out-Null }
+      shell: powershell
+    - name: Ensure TestResults directory exists (Linux/macOS fallback)
+      if: runner.os != 'Windows'
+      run: mkdir -p "$TEST_RESULTS_DIR"
       shell: bash
 
     - name: Run tests
-      run: dotnet test --logger "console;verbosity=detailed" --results-directory TestResults --logger "trx;LogFileName=test_results.trx"
+      env:
+        TEST_RESULTS_DIR: ${{ env.TEST_RESULTS_DIR }}
+      run: dotnet test --logger "console;verbosity=detailed" --results-directory "$env:TEST_RESULTS_DIR" --logger "trx;LogFileName=test_results.trx"
 
     - name: Upload TestResults
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: TestResults
-        path: TestResults
+        path: ${{ env.TEST_RESULTS_DIR }}

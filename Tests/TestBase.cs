@@ -16,10 +16,15 @@ namespace ParabankParasoftAutomation.Tests
         protected IWebDriver Driver = null!;
         protected string BaseUrl = "https://parabank.parasoft.com";
         protected Reports.ReportTest? TestReport;
+        protected string ResultsDir = string.Empty;
 
         [SetUp]
         public void SetUp()
         {
+            // Ensure results directory is available (can be overridden by CI via TEST_RESULTS_DIR)
+            ResultsDir = Environment.GetEnvironmentVariable("TEST_RESULTS_DIR") ?? Path.Combine(Directory.GetCurrentDirectory(), "TestResults");
+            try { Directory.CreateDirectory(ResultsDir); } catch { }
+
             // Ensure ChromeDriver binary is available and matches installed Chrome
             // Attempt to detect the installed Chrome/Chromium version and request a matching driver.
             try
@@ -61,7 +66,7 @@ namespace ParabankParasoftAutomation.Tests
             Driver.Manage().Window.Maximize();
 
             // Create an Extent test node for this test
-            TestReport = Reports.ReportManager.CreateTest(TestContext.CurrentContext.Test.Name);
+            TestReport = Reports.ReportManager.CreateTest(TestContext.CurrentContext.Test.Name, ResultsDir);
             TestReport.AssignCategory(TestContext.CurrentContext.Test.ClassName ?? "Tests");
         }
 
@@ -158,9 +163,9 @@ namespace ParabankParasoftAutomation.Tests
                 // attach screenshot
                 try
                 {
-                    var screenshotsDir = Path.Combine("TestResults", "screenshots");
+                    var screenshotsDir = Path.Combine(ResultsDir, "screenshots");
                     Directory.CreateDirectory(screenshotsDir);
-                    var file = Path.Combine(screenshotsDir, $"{SanitizeFileName(TestContext.CurrentContext.Test.Name)}.png");
+                    var file = Path.Combine(screenshotsDir, SanitizeFileName(TestContext.CurrentContext.Test.Name) + ".png");
                     var ss = ((ITakesScreenshot)Driver).GetScreenshot();
                     ss.SaveAsFile(file);
                     TestReport?.Fail(msg).AddScreenCaptureFromPath(file);
