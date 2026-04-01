@@ -23,7 +23,7 @@ Test Data
 Environment
 - Tests run against the publicly accessible demo site `https://parabank.parasoft.com/`.
 - Local runs require Chrome installed. `WebDriverManager` ensures an appropriate ChromeDriver is downloaded automatically.
-- CI: GitHub Actions workflow provided to run tests on `ubuntu-latest`.
+- CI: GitHub Actions workflow provided to run tests on `Windows-latest`.
 
 Risks & Assumptions
 - UI locators are stable; if site markup changes frequently, locator maintenance will be required.
