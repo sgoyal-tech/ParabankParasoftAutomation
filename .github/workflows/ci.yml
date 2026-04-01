@@ -1,7 +1,7 @@
 name: CI - Run UI Tests
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  DOTNET_VERSION: '8.0.x'
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
