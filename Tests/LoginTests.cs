@@ -28,7 +28,7 @@ namespace ParabankParasoftAutomation.Tests
         public void Login_Negative_WrongPassword_ShowsError()
         {
             var login = new LoginPage(Driver).Navigate(BaseUrl);
-            login.EnterUsername("john").EnterPassword("wrongpass");
+            login.EnterUsername("john").EnterPassword("PwdWrong");
             login.ClickLoginAndExpectFailure();
 
             login.IsErrorDisplayed().Should().BeTrue();

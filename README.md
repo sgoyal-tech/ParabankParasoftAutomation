@@ -67,6 +67,3 @@ A GitHub Actions workflow is included at `.github/workflows/ci.yml`. The workflo
 ## Notes
 
 - Tests use `FluentAssertions` for assertions.
-- If you want a richer HTML report, ExtentReports integration can be added — currently a lightweight file-based reporter is used to avoid package complexity in the demo.
-
-If you need help running tests on a specific environment, tell me your OS and .NET SDK version and I can provide tailored instructions.
