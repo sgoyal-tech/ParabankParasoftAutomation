@@ -2,7 +2,10 @@ name: CI - Run UI Tests
 
 env:
   DOTNET_VERSION: '10.0.x'
-  TEST_RESULTS_DIR: 'D:\\ParaBank_ParaSoft_Automation\\ParabankParasoftAutomation\\TestResults'
+  # Use the repository workspace to store test results so the folder is created on the runner
+  TEST_RESULTS_DIR: "${{ github.workspace }}\\TestResults"
+  # Opt into Node.js 24 for javascript actions to avoid Node.js 20 deprecation warnings
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 on:
   push:
@@ -32,19 +35,23 @@ jobs:
       run: dotnet restore
 
     - name: Ensure TestResults directory exists
-      if: runner.os == 'Windows'
       run: |
         if (-not (Test-Path -Path "$env:TEST_RESULTS_DIR")) { New-Item -ItemType Directory -Path "$env:TEST_RESULTS_DIR" -Force | Out-Null }
       shell: powershell
-    - name: Ensure TestResults directory exists (Linux/macOS fallback)
-      if: runner.os != 'Windows'
-      run: mkdir -p "$TEST_RESULTS_DIR"
-      shell: bash
 
     - name: Run tests
       env:
         TEST_RESULTS_DIR: ${{ env.TEST_RESULTS_DIR }}
-      run: dotnet test --logger "console;verbosity=detailed" --results-directory "$env:TEST_RESULTS_DIR" --logger "trx;LogFileName=test_results.trx"
+      run: |
+        dotnet test --logger "console;verbosity=detailed" --results-directory "$env:TEST_RESULTS_DIR" --logger "trx;LogFileName=test_results.trx"
+      shell: powershell
+
+    - name: List TestResults directory
+      if: always()
+      run: |
+        Write-Host "Test results dir: $env:TEST_RESULTS_DIR"
+        if (Test-Path -Path "$env:TEST_RESULTS_DIR") { Get-ChildItem -Path "$env:TEST_RESULTS_DIR" -Recurse | ForEach-Object { Write-Host $_.FullName } } else { Write-Host "Test results dir not found" }
+      shell: powershell
 
     - name: Upload TestResults
       if: always()
