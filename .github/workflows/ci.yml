@@ -39,11 +39,12 @@ jobs:
         if (-not (Test-Path -Path "$env:TEST_RESULTS_DIR")) { New-Item -ItemType Directory -Path "$env:TEST_RESULTS_DIR" -Force | Out-Null }
       shell: powershell
 
-    - name: Run tests
+    - name: Run tests (no TRX)
       env:
         TEST_RESULTS_DIR: ${{ env.TEST_RESULTS_DIR }}
       run: |
-        dotnet test --logger "console;verbosity=detailed" --results-directory "$env:TEST_RESULTS_DIR" --logger "trx;LogFileName=test_results.trx"
+        # Run tests without generating TRX files. Test artifacts (reports/screenshots) are written by the tests into TEST_RESULTS_DIR.
+        dotnet test --logger "console;verbosity=detailed"
       shell: powershell
 
     - name: List TestResults directory

@@ -184,6 +184,9 @@ namespace ParabankParasoftAutomation.Tests
                 TestReport?.Info($"Test finished with status: {outcome}");
             }
 
+            // Flush reports to ensure HTML report and logs are written into the results directory
+            try { Reports.ReportManager.Flush(); } catch { }
+
             try { Driver.Quit(); } catch { }
             try { Driver.Dispose(); } catch { }
         }

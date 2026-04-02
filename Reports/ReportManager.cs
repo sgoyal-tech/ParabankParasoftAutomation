@@ -7,23 +7,33 @@ namespace Reports
 {
     public class ReportTest
     {
+        private readonly string _file;
         public string Name { get; }
         public string Category { get; private set; } = string.Empty;
         public List<string> Messages { get; } = new List<string>();
         public string? ScreenshotPath { get; private set; }
 
-        public ReportTest(string name, string category)
+        public ReportTest(string name, string resultsDir)
         {
             Name = name;
-            Category = category ?? string.Empty;
+            var dir = Path.Combine(resultsDir, "reports");
+            Directory.CreateDirectory(dir);
+            _file = Path.Combine(dir, SanitizeFileName(name) + ".log");
+            File.AppendAllText(_file, $"=== START TEST: {name} - {DateTime.UtcNow:O}\n");
             Messages.Add($"Started: {DateTime.UtcNow:O}");
         }
 
-        public ReportTest Pass(string message) { Messages.Add("PASS: " + message); return this; }
-        public ReportTest Fail(string message) { Messages.Add("FAIL: " + message); return this; }
-        public ReportTest Info(string message) { Messages.Add("INFO: " + message); return this; }
-        public ReportTest AddScreenCaptureFromPath(string path) { ScreenshotPath = path; Messages.Add("SCREENSHOT: " + path); return this; }
-        public ReportTest AssignCategory(string category) { Category = category; return this; }
+        private static string SanitizeFileName(string name)
+        {
+            foreach (var c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
+            return name;
+        }
+
+        public ReportTest Pass(string message) { Messages.Add("PASS: " + message); File.AppendAllText(_file, $"PASS: {message}\n"); return this; }
+        public ReportTest Fail(string message) { Messages.Add("FAIL: " + message); File.AppendAllText(_file, $"FAIL: {message}\n"); return this; }
+        public ReportTest Info(string message) { Messages.Add("INFO: " + message); File.AppendAllText(_file, $"INFO: {message}\n"); return this; }
+        public ReportTest AddScreenCaptureFromPath(string path) { ScreenshotPath = path; Messages.Add("SCREENSHOT: " + path); File.AppendAllText(_file, $"SCREENSHOT: {path}\n"); return this; }
+        public ReportTest AssignCategory(string category) { Category = category; File.AppendAllText(_file, $"CATEGORY: {category}\n"); return this; }
     }
 
     public static class ReportManager
@@ -34,13 +44,8 @@ namespace Reports
         public static ReportTest CreateTest(string name, string resultsDir)
         {
             if (!string.IsNullOrEmpty(resultsDir)) _resultsDir = resultsDir;
-            var t = new ReportTest(name, string.Empty);
+            var t = new ReportTest(name, _resultsDir);
             _tests.Add(t);
-            // also ensure per-test log file exists
-            var dir = Path.Combine(_resultsDir, "reports");
-            Directory.CreateDirectory(dir);
-            var file = Path.Combine(dir, SanitizeFileName(name) + ".log");
-            File.AppendAllText(file, $"=== START TEST: {name} - {DateTime.UtcNow:O}\n");
             return t;
         }
 
