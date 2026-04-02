@@ -62,7 +62,7 @@ Note: The project uses `WebDriverManager` to download a matching ChromeDriver at
 
 ## CI
 
-A GitHub Actions workflow is included at `.github/workflows/ci.yml`. The workflow will run the tests on `ubuntu-latest` and upload `TestResults` as artifacts.
+A GitHub Actions workflow is included at `.github/workflows/ci.yml`. The workflow will run the tests on `Windows-latest` and upload `TestResults` as artifacts.
 
 ## Notes
 
