@@ -65,7 +65,7 @@ namespace ParabankParasoftAutomation.Tests
             Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             Driver.Manage().Window.Maximize();
 
-            // Create an Extent test node for this test
+            // Initialize reporting and create a test node
             TestReport = Reports.ReportManager.CreateTest(TestContext.CurrentContext.Test.Name, ResultsDir);
             TestReport.AssignCategory(TestContext.CurrentContext.Test.ClassName ?? "Tests");
         }
