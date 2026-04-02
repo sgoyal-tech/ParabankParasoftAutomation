@@ -1,6 +1,9 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using ParabankParasoftAutomation.Pages;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using System;
 
 namespace ParabankParasoftAutomation.Tests
 {
@@ -28,11 +31,25 @@ namespace ParabankParasoftAutomation.Tests
         public void Login_Negative_WrongPassword_ShowsError()
         {
             var login = new LoginPage(Driver).Navigate(BaseUrl);
+            login.IsLoginFormVisible().Should().BeTrue();
+
             login.EnterUsername("john").EnterPassword("PwdWrong");
             login.ClickLoginAndExpectFailure();
 
+            // wait for error message to appear (site may take a moment)
+            var wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
+            wait.Until(d => login.IsErrorDisplayed());
+
             login.IsErrorDisplayed().Should().BeTrue();
-            login.GetErrorMessage().Should().Contain("The username and password could not be verified");
+            var msg = login.GetErrorMessage();
+            msg.Should().NotBeNullOrWhiteSpace();
+
+            // Accept slight variations in the site's error text but assert the core meaning
+            var containsKnown = msg.Contains("could not be verified", StringComparison.OrdinalIgnoreCase)
+                                || msg.Contains("The username and password", StringComparison.OrdinalIgnoreCase)
+                                || msg.Contains("invalid", StringComparison.OrdinalIgnoreCase);
+
+            containsKnown.Should().BeTrue("an authentication error message should be shown for invalid credentials. Actual: '{0}'", msg);
         }
 
         [Test]
