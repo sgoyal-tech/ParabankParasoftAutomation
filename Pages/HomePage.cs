@@ -26,8 +26,8 @@ public class HomePage : BasePage
 
     // ─── State ────────────────────────────────────────────────────────────────
 
-    public bool IsUserLoggedIn() =>
-        IsElementPresent(_logoutLink) && IsElementPresent(_leftPanel);
+    public bool IsUserLoggedIn() =>  
+         IsElementPresent(_logoutLink) && IsElementPresent(_leftPanel);
 
     public bool IsLogoutLinkVisible() => IsElementPresent(_logoutLink);
     public bool IsAccountServicesPanelVisible() => IsElementPresent(_leftPanel);

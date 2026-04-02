@@ -46,7 +46,7 @@ namespace ParabankParasoftAutomation.Tests
                 // If detection fails for any reason, fallback to default behavior to avoid blocking tests
                 try { new DriverManager().SetUpDriver(new ChromeConfig()); } catch { }
             }
-
+            
             var options = new ChromeOptions();
 
             // Headless mode control

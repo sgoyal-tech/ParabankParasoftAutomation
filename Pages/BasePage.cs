@@ -8,6 +8,7 @@ namespace ParabankParasoftAutomation.Pages;
 
 public abstract class BasePage
 {
+    
     protected readonly IWebDriver Driver;
     protected readonly WebDriverWait Wait;
 
