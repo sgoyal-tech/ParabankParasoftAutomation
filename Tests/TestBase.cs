@@ -64,10 +64,12 @@ namespace ParabankParasoftAutomation.Tests
             Driver = new ChromeDriver(options);
             Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             Driver.Manage().Window.Maximize();
+            Reports.ReportManager.RegisterDriver(Driver);
 
             // Initialize reporting and create a test node
             TestReport = Reports.ReportManager.CreateTest(TestContext.CurrentContext.Test.Name, ResultsDir);
             TestReport.AssignCategory(TestContext.CurrentContext.Test.ClassName ?? "Tests");
+            Reports.ReportManager.TestStep("Browser launched successfully.");
         }
 
         private static string? DetectInstalledChromeVersion()
@@ -186,6 +188,7 @@ namespace ParabankParasoftAutomation.Tests
 
             // Flush reports to ensure HTML report and logs are written into the results directory
             try { Reports.ReportManager.Flush(); } catch { }
+            try { Reports.ReportManager.UnregisterDriver(); } catch { }
 
             try { Driver.Quit(); } catch { }
             try { Driver.Dispose(); } catch { }

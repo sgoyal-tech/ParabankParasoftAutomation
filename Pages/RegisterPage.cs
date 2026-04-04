@@ -26,28 +26,32 @@ namespace ParabankParasoftAutomation.Pages
 
         public RegisterPage Navigate(string baseUrl)
         {
+            LogMethodStart(nameof(Navigate));
+            LogStep("Navigating to registration page.");
             Driver.Navigate().GoToUrl($"{baseUrl}/parabank/register.htm");
             WaitForElement(_firstName);
             return this;
         }
 
-        public RegisterPage EnterFirstName(string v) { WaitForElement(_firstName).Clear(); WaitForElement(_firstName).SendKeys(v); return this; }
-        public RegisterPage EnterLastName(string v) { WaitForElement(_lastName).Clear(); WaitForElement(_lastName).SendKeys(v); return this; }
-        public RegisterPage EnterAddress(string v) { WaitForElement(_address).Clear(); WaitForElement(_address).SendKeys(v); return this; }
-        public RegisterPage EnterCity(string v) { WaitForElement(_city).Clear(); WaitForElement(_city).SendKeys(v); return this; }
-        public RegisterPage EnterState(string v) { WaitForElement(_state).Clear(); WaitForElement(_state).SendKeys(v); return this; }
-        public RegisterPage EnterZip(string v) { WaitForElement(_zip).Clear(); WaitForElement(_zip).SendKeys(v); return this; }
-        public RegisterPage EnterPhone(string v) { WaitForElement(_phone).Clear(); WaitForElement(_phone).SendKeys(v); return this; }
-        public RegisterPage EnterSsn(string v) { WaitForElement(_ssn).Clear(); WaitForElement(_ssn).SendKeys(v); return this; }
-        public RegisterPage EnterUsername(string v) { WaitForElement(_username).Clear(); WaitForElement(_username).SendKeys(v); _lastUsername = v; return this; }
-        public RegisterPage EnterPassword(string v) { WaitForElement(_password).Clear(); WaitForElement(_password).SendKeys(v); _lastPassword = v; return this; }
-        public RegisterPage EnterConfirm(string v) { WaitForElement(_confirm).Clear(); WaitForElement(_confirm).SendKeys(v); return this; }
+        public RegisterPage EnterFirstName(string v) { LogStep("Entering first name."); WaitForElement(_firstName).Clear(); WaitForElement(_firstName).SendKeys(v); return this; }
+        public RegisterPage EnterLastName(string v) { LogStep("Entering last name."); WaitForElement(_lastName).Clear(); WaitForElement(_lastName).SendKeys(v); return this; }
+        public RegisterPage EnterAddress(string v) { LogStep("Entering address."); WaitForElement(_address).Clear(); WaitForElement(_address).SendKeys(v); return this; }
+        public RegisterPage EnterCity(string v) { LogStep("Entering city."); WaitForElement(_city).Clear(); WaitForElement(_city).SendKeys(v); return this; }
+        public RegisterPage EnterState(string v) { LogStep("Entering state."); WaitForElement(_state).Clear(); WaitForElement(_state).SendKeys(v); return this; }
+        public RegisterPage EnterZip(string v) { LogStep("Entering zip code."); WaitForElement(_zip).Clear(); WaitForElement(_zip).SendKeys(v); return this; }
+        public RegisterPage EnterPhone(string v) { LogStep("Entering phone number."); WaitForElement(_phone).Clear(); WaitForElement(_phone).SendKeys(v); return this; }
+        public RegisterPage EnterSsn(string v) { LogStep("Entering SSN."); WaitForElement(_ssn).Clear(); WaitForElement(_ssn).SendKeys(v); return this; }
+        public RegisterPage EnterUsername(string v) { LogStep("Entering registration username."); WaitForElement(_username).Clear(); WaitForElement(_username).SendKeys(v); _lastUsername = v; return this; }
+        public RegisterPage EnterPassword(string v) { LogStep("Entering registration password."); WaitForElement(_password).Clear(); WaitForElement(_password).SendKeys(v); _lastPassword = v; return this; }
+        public RegisterPage EnterConfirm(string v) { LogStep("Entering password confirmation."); WaitForElement(_confirm).Clear(); WaitForElement(_confirm).SendKeys(v); return this; }
 
         /// <summary>
         /// Clicks register and returns the HomePage when registration succeeds.
         /// </summary>
         public HomePage SubmitAndExpectSuccess()
         {
+            LogMethodStart(nameof(SubmitAndExpectSuccess));
+            LogStep("Submitting registration expecting success.");
             WaitForElement(_registerButton).Click();
 
             // After submit, try to wait for the authenticated home state (logout link) for a longer timeout
@@ -78,6 +82,8 @@ namespace ParabankParasoftAutomation.Pages
         /// </summary>
         public RegisterPage SubmitExpectFailure()
         {
+            LogMethodStart(nameof(SubmitExpectFailure));
+            LogStep("Submitting registration expecting validation failure.");
             WaitForElement(_registerButton).Click();
             return this;
         }

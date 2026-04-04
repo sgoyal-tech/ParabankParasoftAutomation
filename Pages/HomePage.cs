@@ -46,6 +46,8 @@ public class HomePage : BasePage
 
     public LoginPage Logout()
     {
+        LogMethodStart(nameof(Logout));
+        LogStep("Logging out from the application.");
         WaitForElement(_logoutLink).Click();
         return new LoginPage(Driver);
     }

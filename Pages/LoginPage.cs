@@ -27,6 +27,8 @@ public class LoginPage : BasePage
 
     public LoginPage Navigate(string baseUrl)
     {
+        LogMethodStart(nameof(Navigate));
+        LogStep("Navigating to login page.");
         Driver.Navigate().GoToUrl($"{baseUrl}/parabank/index.htm");
         WaitForElement(_loginPanel);
         return this;
@@ -36,6 +38,8 @@ public class LoginPage : BasePage
 
     public LoginPage EnterUsername(string username)
     {
+        LogMethodStart(nameof(EnterUsername));
+        LogStep("Entering username.");
         var field = WaitForElement(_usernameInput);
         field.Clear();
         field.SendKeys(username);
@@ -44,6 +48,8 @@ public class LoginPage : BasePage
 
     public LoginPage EnterPassword(string password)
     {
+        LogMethodStart(nameof(EnterPassword));
+        LogStep("Entering password.");
         var field = WaitForElement(_passwordInput);
         field.Clear();
         field.SendKeys(password);
@@ -55,6 +61,8 @@ public class LoginPage : BasePage
     /// </summary>
     public HomePage ClickLoginAndExpectSuccess()
     {
+        LogMethodStart(nameof(ClickLoginAndExpectSuccess));
+        LogStep("Submitting login expecting success.");
         WaitForElement(_loginButton).Click();
         return new HomePage(Driver);
     }
@@ -64,6 +72,8 @@ public class LoginPage : BasePage
     /// </summary>
     public LoginPage ClickLoginAndExpectFailure()
     {
+        LogMethodStart(nameof(ClickLoginAndExpectFailure));
+        LogStep("Submitting login expecting failure.");
         WaitForElement(_loginButton).Click();
         return this;
     }

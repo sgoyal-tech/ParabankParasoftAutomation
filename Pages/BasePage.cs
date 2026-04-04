@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using Reports;
 
 namespace ParabankParasoftAutomation.Pages;
 
@@ -49,6 +50,16 @@ public abstract class BasePage
     protected void WaitForTitleContaining(string titleFragment)
     {
         Wait.Until(d => d.Title.Contains(titleFragment, StringComparison.OrdinalIgnoreCase));
+    }
+
+    protected void LogMethodStart(string methodName)
+    {
+        ReportManager.StartMethod(methodName);
+    }
+
+    protected void LogStep(string message)
+    {
+        ReportManager.TestStep(message);
     }
 
 }
