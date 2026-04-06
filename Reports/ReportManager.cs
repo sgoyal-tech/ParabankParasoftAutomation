@@ -3,11 +3,8 @@ using AventStack.ExtentReports.Reporter;
 using AventStack.ExtentReports.Reporter.Config;
 using NUnit.Framework;
 using OpenQA.Selenium;
-using System;
-using System.IO;
 
-namespace Reports
-{
+namespace Reports;
     public class ReportTest
     {
         private readonly ExtentTest _test;
@@ -73,7 +70,7 @@ namespace Reports
         private static IWebDriver? currentDriver;
         private static readonly object SyncRoot = new();
 
-        public static int iTestStep = 1;
+        public static int stepCounter = 1;
 
         public static void RegisterDriver(IWebDriver driver)
         {
@@ -130,14 +127,12 @@ namespace Reports
             }
         }
 
-        public static void StartTestStep(string sStepDescription)
+        public static void StartTestStep(string description)
         {
             if (parentTest == null)
-            {
                 return;
-            }
 
-            childTest = parentTest.CreateNode($"Test Step {iTestStep++}: {sStepDescription}");
+            childTest = parentTest.CreateNode($"Test Step {stepCounter++}: {description}");
         }
 
         public static void StartMethod(string methodName)
@@ -156,7 +151,7 @@ namespace Reports
             TestStartDateTime = DateTime.Now;
             parentTest = extent!.CreateTest(testName);
             childTest = null;
-            iTestStep = 1;
+            stepCounter = 1;
         }
 
         public static void VerificationStep(string result, string details, string imageName = "SS_")
@@ -167,54 +162,44 @@ namespace Reports
                 return;
             }
 
-            var normalizedResult = result?.Trim().ToLowerInvariant() ?? string.Empty;
-            var imageFileName = imageName + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png";
-            var relativeImagePath = GetRelativeScreenshotPath(imageFileName);
+            var normalized = result?.Trim().ToLowerInvariant() ?? "";
+            var imageFile = imageName + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".png";
+            var relPath = GetRelativeScreenshotPath(imageFile);
 
-            if (normalizedResult == "pass")
+            if (normalized == "pass")
             {
                 if (IsScreenShotsRequired)
                 {
-                    CaptureApplication(imageFileName);
-                    activeTest.Pass(details, MediaEntityBuilder.CreateScreenCaptureFromPath(relativeImagePath).Build());
+                    CaptureApplication(imageFile);
+                    activeTest.Pass(details, MediaEntityBuilder.CreateScreenCaptureFromPath(relPath).Build());
                 }
                 else
-                {
                     activeTest.Pass(details);
-                }
-
                 return;
             }
 
-            if (normalizedResult == "fail")
+            if (normalized == "fail")
             {
                 if (IsScreenShotsRequired)
                 {
-                    CaptureApplication(imageFileName);
-                    activeTest.Fail(details, MediaEntityBuilder.CreateScreenCaptureFromPath(relativeImagePath).Build());
+                    CaptureApplication(imageFile);
+                    activeTest.Fail(details, MediaEntityBuilder.CreateScreenCaptureFromPath(relPath).Build());
                 }
                 else
-                {
                     activeTest.Fail(details);
-                }
 
                 if (!details.Contains("Test Failed due to an unhandled exception", StringComparison.OrdinalIgnoreCase) && FailOnAssert)
-                {
                     Assert.Fail(details);
-                }
-
                 return;
             }
 
             if (IsScreenShotsRequired)
             {
-                CaptureApplication(imageFileName);
-                activeTest.Info(details, MediaEntityBuilder.CreateScreenCaptureFromPath(relativeImagePath).Build());
+                CaptureApplication(imageFile);
+                activeTest.Info(details, MediaEntityBuilder.CreateScreenCaptureFromPath(relPath).Build());
             }
             else
-            {
                 activeTest.Info(details);
-            }
         }
 
         public static void TestStep(string stepDescription)
@@ -283,34 +268,33 @@ namespace Reports
             }
         }
 
-        private static ExtentTest? GetActiveTest()
-        {
-            return childTest ?? parentTest;
-        }
+                        private static ExtentTest? GetActiveTest()
+                        {
+                            return childTest ?? parentTest;
+                        }
 
-        private static string ResolveResultsDirectory(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return projectPath;
-            }
+                        private static string ResolveResultsDirectory(string path)
+                        {
+                            if (string.IsNullOrWhiteSpace(path))
+                            {
+                                return projectPath;
+                            }
 
-            if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsFile)
-            {
-                return Path.GetFullPath(uri.LocalPath);
-            }
+                            if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsFile)
+                            {
+                                return Path.GetFullPath(uri.LocalPath);
+                            }
 
-            return Path.GetFullPath(path);
-        }
+                            return Path.GetFullPath(path);
+                        }
 
-        private static string GetScreenshotsDirectory()
-        {
-            return Path.Combine(projectPath, "screenshots");
-        }
+                        private static string GetScreenshotsDirectory()
+                        {
+                            return Path.Combine(projectPath, "screenshots");
+                        }
 
-        private static string GetRelativeScreenshotPath(string imageFileName)
-        {
-            return Path.Combine("..", "screenshots", imageFileName);
-        }
-    }
-}
+                        private static string GetRelativeScreenshotPath(string imageFileName)
+                        {
+                            return Path.Combine("..", "screenshots", imageFileName);
+                        }
+                    }

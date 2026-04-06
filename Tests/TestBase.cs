@@ -21,37 +21,38 @@ namespace ParabankParasoftAutomation.Tests
         [SetUp]
         public void SetUp()
         {
-            // Ensure results directory is available (can be overridden by CI via TEST_RESULTS_DIR)
-            ResultsDir = Environment.GetEnvironmentVariable("TEST_RESULTS_DIR") ?? Path.Combine(Directory.GetCurrentDirectory(), "TestResults");
-            try { Directory.CreateDirectory(ResultsDir); } catch { }
+            ResultsDir = Environment.GetEnvironmentVariable("TEST_RESULTS_DIR")
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "TestResults");
+            try
+            {
+                Directory.CreateDirectory(ResultsDir);
+            }
+            catch
+            {
+            }
 
-            // Ensure ChromeDriver binary is available and matches installed Chrome
-            // Attempt to detect the installed Chrome/Chromium version and request a matching driver.
+            // Match ChromeDriver to the installed Chrome version
             try
             {
                 var detectedVersion = DetectInstalledChromeVersion();
                 if (!string.IsNullOrEmpty(detectedVersion))
-                {
-                    // Request a driver that matches the exact browser version when possible
                     new DriverManager().SetUpDriver(new ChromeConfig(), detectedVersion);
-                }
                 else
-                {
-                    // Fallback to default behavior (WebDriverManager will pick a driver)
                     new DriverManager().SetUpDriver(new ChromeConfig());
-                }
             }
             catch
             {
-                // If detection fails for any reason, fallback to default behavior to avoid blocking tests
-                try { new DriverManager().SetUpDriver(new ChromeConfig()); } catch { }
+                try
+                {
+                    new DriverManager().SetUpDriver(new ChromeConfig());
+                }
+                catch
+                {
+                }
             }
             
             var options = new ChromeOptions();
-
-            // Headless mode control
-            // Headless is explicitly disabled here by default. To enable headless set this flag to true.
-            var headlessEnabled = false; // <-- headless mode set to false
+            var headlessEnabled = false;
 
             if (headlessEnabled)
             {
@@ -66,7 +67,7 @@ namespace ParabankParasoftAutomation.Tests
             Driver.Manage().Window.Maximize();
             Reports.ReportManager.RegisterDriver(Driver);
 
-            // Initialize reporting and create a test node
+            // Reporting
             TestReport = Reports.ReportManager.CreateTest(TestContext.CurrentContext.Test.Name, ResultsDir);
             TestReport.AssignCategory(TestContext.CurrentContext.Test.ClassName ?? "Tests");
             Reports.ReportManager.TestStep("Browser launched successfully.");
@@ -78,13 +79,9 @@ namespace ParabankParasoftAutomation.Tests
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    // Check common install locations and CHROME_PATH env var
                     var env = Environment.GetEnvironmentVariable("CHROME_PATH");
                     if (!string.IsNullOrEmpty(env) && File.Exists(env))
-                    {
-                        var info = FileVersionInfo.GetVersionInfo(env);
-                        return info.ProductVersion; // e.g. "146.0.7680.178"
-                    }
+                        return FileVersionInfo.GetVersionInfo(env).ProductVersion;
 
                     var progFiles = new[]
                     {
@@ -106,8 +103,7 @@ namespace ParabankParasoftAutomation.Tests
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    // Try common commands to get version
-                    string[] commands = { "google-chrome", "google-chrome-stable", "chromium-browser", "chromium" };
+                    string[] commands = ["google-chrome", "google-chrome-stable", "chromium-browser", "chromium"];
                     foreach (var cmd in commands)
                     {
                         try
@@ -127,20 +123,15 @@ namespace ParabankParasoftAutomation.Tests
                             proc.WaitForExit(2000);
                             if (string.IsNullOrEmpty(outp)) continue;
 
-                            // Output examples:
-                            // Google Chrome 146.0.7680.178
-                            // Chromium 146.0.7680.178
+                            // Parse version number from output like "Google Chrome 146.0.7680.178"
                             var parts = outp.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                             foreach (var part in parts)
                             {
                                 if (part.Length > 0 && char.IsDigit(part[0]) && part.Contains('.'))
-                                {
-                                    // crude validation
                                     return part.Trim();
-                                }
                             }
                         }
-                        catch { /* ignore and try next */ }
+                        catch { }
                     }
 
                     return null;
@@ -162,7 +153,6 @@ namespace ParabankParasoftAutomation.Tests
 
             if (outcome == NUnit.Framework.Interfaces.TestStatus.Failed)
             {
-                // attach screenshot
                 try
                 {
                     var screenshotsDir = Path.Combine(ResultsDir, "screenshots");
@@ -186,17 +176,46 @@ namespace ParabankParasoftAutomation.Tests
                 TestReport?.Info($"Test finished with status: {outcome}");
             }
 
-            // Flush reports to ensure HTML report and logs are written into the results directory
-            try { Reports.ReportManager.Flush(); } catch { }
-            try { Reports.ReportManager.UnregisterDriver(); } catch { }
+            // Flush report and clean up
+            try
+            {
+                Reports.ReportManager.Flush();
+            }
+            catch
+            {
+            }
 
-            try { Driver.Quit(); } catch { }
-            try { Driver.Dispose(); } catch { }
+            try
+            {
+                Reports.ReportManager.UnregisterDriver();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                Driver.Quit();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                Driver.Dispose();
+            }
+            catch
+            {
+            }
         }
 
         private static string SanitizeFileName(string name)
         {
-            foreach (var c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
+            foreach (var c in Path.GetInvalidFileNameChars())
+            {
+                name = name.Replace(c, '_');
+            }
             return name;
         }
     }

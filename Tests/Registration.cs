@@ -50,7 +50,6 @@ namespace ParabankParasoftAutomation.Tests
 
             reg.SubmitExpectFailure();
 
-            // The site shows validation inline; ensure we remain on register page
             reg.IsFirstNamePresent().Should().BeTrue();
         }
     }

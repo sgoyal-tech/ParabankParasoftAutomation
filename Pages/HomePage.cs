@@ -1,53 +1,66 @@
 ﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ParabankParasoftAutomation.Pages;
 
 /// <summary>
-/// Page Object Model for the ParaBank Home / Accounts Overview page,
-/// shown to users after a successful login.
+/// Accounts Overview / Home page shown after login.
 /// </summary>
 public class HomePage : BasePage
 {
-    // ─── Locators ─────────────────────────────────────────────────────────────
     private readonly By _pageTitle = By.CssSelector(".title");
     private readonly By _logoutLink = By.LinkText("Log Out");
     private readonly By _leftPanel = By.Id("leftPanel");
     private readonly By _userFullName = By.CssSelector("#leftPanel p.smallText");
-    private readonly By _accountsOverview = By.LinkText("Accounts Overview");
 
     public HomePage(IWebDriver driver) : base(driver)
     {
-        // Wait for the authenticated page to be ready
         WaitForElement(_logoutLink);
     }
 
-    // ─── State ────────────────────────────────────────────────────────────────
+    public bool IsUserLoggedIn()
+    {
+        return IsElementPresent(_logoutLink) && IsElementPresent(_leftPanel);
+    }
 
-    public bool IsUserLoggedIn() =>  
-         IsElementPresent(_logoutLink) && IsElementPresent(_leftPanel);
+    public bool IsLogoutLinkVisible()
+    {
+        return IsElementPresent(_logoutLink);
+    }
 
-    public bool IsLogoutLinkVisible() => IsElementPresent(_logoutLink);
-    public bool IsAccountServicesPanelVisible() => IsElementPresent(_leftPanel);
+    public bool IsAccountServicesPanelVisible()
+    {
+        return IsElementPresent(_leftPanel);
+    }
 
-    public string GetPageTitle() => WaitForElement(_pageTitle).Text.Trim();
+    public string GetPageTitle()
+    {
+        return WaitForElement(_pageTitle).Text.Trim();
+    }
 
     public string GetWelcomeText()
     {
-        try { return WaitForElement(_userFullName).Text.Trim(); }
-        catch { return string.Empty; }
+        try
+        {
+            return WaitForElement(_userFullName).Text.Trim();
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 
-    public string CurrentUrl => Driver.Url;
-
-    // ─── Actions ──────────────────────────────────────────────────────────────
+    public string CurrentUrl
+    {
+        get
+        {
+            return Driver.Url;
+        }
+    }
 
     public LoginPage Logout()
     {
-        LogMethodStart(nameof(Logout));
-        LogStep("Logging out from the application.");
+        LogMethod(nameof(Logout));
+        LogStep("Clicking Log Out");
         WaitForElement(_logoutLink).Click();
         return new LoginPage(Driver);
     }

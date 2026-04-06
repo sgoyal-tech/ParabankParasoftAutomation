@@ -15,14 +15,12 @@ namespace ParabankParasoftAutomation.Tests
             var login = new LoginPage(Driver).Navigate(BaseUrl);
             login.IsLoginFormVisible().Should().BeTrue();
 
-            // Known demo credentials from the site
             login.EnterUsername("john").EnterPassword("demo");
             var home = login.ClickLoginAndExpectSuccess();
 
             home.IsUserLoggedIn().Should().BeTrue();
             home.GetPageTitle().Should().Contain("Accounts Overview");
 
-            // logout to restore state
             var back = home.Logout();
             back.IsLoginFormVisible().Should().BeTrue();
         }
@@ -33,10 +31,9 @@ namespace ParabankParasoftAutomation.Tests
             var login = new LoginPage(Driver).Navigate(BaseUrl);
             login.IsLoginFormVisible().Should().BeTrue();
 
-            login.EnterUsername("john").EnterPassword("PwdWrong");
+            login.EnterUsername("john").EnterPassword("Admin");
             login.ClickLoginAndExpectFailure();
 
-            // wait for error message to appear (site may take a moment)
             var wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
             wait.Until(d => login.IsErrorDisplayed());
 
@@ -44,7 +41,7 @@ namespace ParabankParasoftAutomation.Tests
             var msg = login.GetErrorMessage();
             msg.Should().NotBeNullOrWhiteSpace();
 
-            // Accept slight variations in the site's error text but assert the core meaning
+            // Check the error text matches expected patterns
             var containsKnown = msg.Contains("could not be verified", StringComparison.OrdinalIgnoreCase)
                                 || msg.Contains("The username and password", StringComparison.OrdinalIgnoreCase)
                                 || msg.Contains("invalid", StringComparison.OrdinalIgnoreCase);
@@ -59,7 +56,6 @@ namespace ParabankParasoftAutomation.Tests
             login.EnterUsername("").EnterPassword("");
             login.ClickLoginAndExpectFailure();
 
-            // The app does not show fancy client-side messages, but login will fail
             login.IsErrorDisplayed().Should().BeTrue();
         }
     }
